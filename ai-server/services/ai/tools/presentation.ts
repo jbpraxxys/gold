@@ -1,14 +1,18 @@
 import { renderPdf } from '../../documents/pdf.ts'
 import { renderPresentationHtml } from '../../documents/presentation-json.ts'
 import { getTemplate } from '../../../presentation-templates/registry.ts'
+import fs from 'node:fs'
+import path from 'node:path'
 
 // Load templates (side-effect: registers them)
 import '../../../presentation-templates/broker.ts'
 
-// Dynamic import of pptx.ts (has ESM/CJS interop)
-async function buildPptx(slides: any[], filename: string) {
-  const { buildPresentation } = await import('../../documents/pptx.ts')
-  return buildPresentation(slides, filename)
+const OUTPUT_DIR = path.resolve(process.cwd(), 'public', 'generated')
+
+// Dynamic import of pptxgen for the PPTX renderer
+async function createPptxGen() {
+  const pptxgenjs = await import('pptxgenjs')
+  return (pptxgenjs as any).default?.default || (pptxgenjs as any).default || pptxgenjs
 }
 
 export interface PresentationInput {
@@ -35,57 +39,49 @@ export async function executePresentation(input: PresentationInput): Promise<Pre
 
   const format = input.format || 'pptx'
 
-  // Build flat slides compatible with existing pptx.ts buildPresentation()
-  const flatSlides: Array<{ title: string; content: string; type: string }> = []
-
+  // Validate all slides against their layout schemas first
+  const validatedSlides: Array<{ layout: typeof template.layouts[0]; content: Record<string, any> }> = []
   for (const s of input.slides) {
     const layout = template.layouts.find(l => l.id === s.layout)
     if (!layout) return { success: false, message: `Layout "${s.layout}" not found in template "${templateId}". Available: ${template.layouts.map(l => l.id).join(', ')}` }
 
-    // Validate content against schema
     const parsed = layout.schema.safeParse(s.content)
     if (!parsed.success) {
       return { success: false, message: `Invalid content for layout "${s.layout}": ${parsed.error.message}` }
     }
-
-    // Build a title/content string for the flat renderer
-    const c = parsed.data
-    const title = c.property_name || c.message || c.title || 'Slide'
-    const content = Object.entries(c)
-      .filter(([k]) => !['property_name', 'message', 'agent'].includes(k))
-      .map(([k, v]) => `${k}: ${v}`)
-      .join('\n')
-
-    flatSlides.push({ title, content, type: layout.id.split(':').pop() || 'content' })
+    validatedSlides.push({ layout, content: parsed.data })
   }
 
-  // Generate renderer-specific output
   const baseName = (input.title || 'presentation').replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()
+  const timestamp = Date.now()
+  const files: Array<{ filename: string; url: string; format: string }> = []
 
-  if (format === 'html') {
-    // Build for presenton-style JSON→HTML preview
-    const previewData = {
-      title: input.title || 'Presentation',
-      slides: flatSlides.map(s => ({ title: s.title, content: s.content, type: s.type as any })),
-    }
-    return {
-      success: true,
-      message: 'HTML preview ready.',
-      files: [],
-    }
+  if (!fs.existsSync(OUTPUT_DIR)) fs.mkdirSync(OUTPUT_DIR, { recursive: true })
+
+  // ─── PPTX (always generated) ──────────────────────────────────
+  const PptxGenJS = await createPptxGen()
+  const pres = new PptxGenJS()
+  pres.layout = 'LAYOUT_WIDE'
+
+  // Use each layout's own PPTX renderer
+  for (const { layout, content } of validatedSlides) {
+    layout.renderPptx(pres, content)
   }
 
-  // PDF and PPTX
-  const pptxResult = await buildPptx(flatSlides, `${baseName}.pptx`)
+  const pptxFilename = `${timestamp}-${baseName}.pptx`
+  const pptxPath = path.join(OUTPUT_DIR, pptxFilename)
+  await pres.writeFile({ fileName: pptxPath })
+  files.push({ filename: pptxFilename, url: `/generated/${pptxFilename}`, format: 'PPTX' })
 
-  const files: Array<{ filename: string; url: string; format: string }> = [
-    { filename: pptxResult.filename, url: pptxResult.url, format: 'PPTX' },
-  ]
-
+  // ─── PDF (if requested) ───────────────────────────────────────
   if (format === 'pdf') {
     const html = renderPresentationHtml({
       title: input.title || 'Presentation',
-      slides: flatSlides.map(s => ({ title: s.title, content: s.content, type: s.type as any })),
+      slides: validatedSlides.map(({ layout, content }) => ({
+        title: (content as any).property_name || (content as any).message || 'Slide',
+        content: Object.values(content).join('\n'),
+        type: layout.id.split(':').pop() as any,
+      })),
       theme: { primary: template.primaryColor },
     })
     const pdfResult = await renderPdf(html, baseName)
@@ -94,8 +90,8 @@ export async function executePresentation(input: PresentationInput): Promise<Pre
 
   return {
     success: true,
-    message: `Presentation generated as ${format.toUpperCase()}.`,
-    downloadUrl: pptxResult.url,
+    message: `Presentation generated as ${format.toUpperCase()} with ${validatedSlides.length} slides.`,
+    downloadUrl: `/generated/${pptxFilename}`,
     files,
   }
 }
