@@ -75,6 +75,22 @@ app.get('/api/templates/:id', (req, res) => {
   });
 });
 
+// Direct PPTX test — generates from JSON without AI
+app.post('/api/test/presentation', async (req, res) => {
+  try {
+    const { executePresentation } = await import('./services/ai/tools/presentation.ts');
+    const result = await executePresentation({
+      template: req.body.template || 'toprealty-broker',
+      title: req.body.title || 'Test Presentation',
+      format: req.body.format || 'pptx',
+      slides: req.body.slides || [],
+    });
+    res.json(result);
+  } catch (err) {
+    res.status(400).json({ success: false, message: err.message });
+  }
+});
+
 // AI Chat endpoint — streaming with multi-step tool calling
 app.post('/api/chat', async (req, res) => {
   try {
@@ -190,7 +206,15 @@ app.post('/api/chat', async (req, res) => {
         }),
 
         generate_presentation: tool({
-          description: 'Generate a professional real estate presentation using the broker template. Available layouts: broker:title (opening), broker:property-overview (specs+highlights table), broker:comparison (side-by-side), broker:investment (metrics+ROI), broker:end (closing).',
+          description: `Generate a real estate presentation using the broker template. Available layouts and their REQUIRED fields:
+
+broker:title → { property_name: string, price: string, agent?: string }
+broker:property-overview → { property_name: string, specs: string, highlights: string }
+broker:comparison → { left_name: string, left_details: string, right_name: string, right_details: string }
+broker:investment → { property_name: string, price_range: string, rental_yield: string, appreciation: string, key_points: string }
+broker:end → { message?: string, agent?: string }
+
+IMPORTANT: Use the EXACT field names shown above. specs=pipe-delimited table rows, highlights=bullet text, key_points=bullet text.`,
           parameters: z.object({
             template: z.string().default('toprealty-broker').describe('Template ID. Currently available: toprealty-broker'),
             title: z.string().optional().describe('Presentation title'),

@@ -5,7 +5,8 @@
   "main": "server.js",
   "scripts": {
     "start": "tsx server.js",
-    "dev": "tsx --watch server.js"
+    "dev": "tsx --watch server.js",
+    "test-pptx": "tsx scripts/test-pptx.js"
   },
   "keywords": [],
   "author": "",
