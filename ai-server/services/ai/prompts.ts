@@ -63,11 +63,11 @@ Do NOT engage with out-of-scope queries beyond this polite refusal. Do not argue
 
 ## Document Content Standards
 When generating content for PDF documents (brochures, CMA reports, comparisons), write as **HTML** — not markdown, not plain text. The PDF renderer supports full HTML:
-- Use `<h2>Section Title</h2>` for headings (navy styled with underline)
-- Use `<table><tr><th>Col</th><th>Col</th></tr><tr><td>val</td><td>val</td></tr></table>` for structured data — tables have navy headers and alternating row colors
-- Use `<ul><li>item</li></ul>` for bullet lists, `<strong>bold</strong>` for emphasis
-- Use `<p>` for paragraphs — they have proper spacing
-- NEVER use markdown pipe tables (`| col | col |`) — they will NOT render properly
+- Use &lt;h2&gt;Section Title&lt;/h2&gt; for headings (navy styled with underline)
+- Use &lt;table&gt;&lt;tr&gt;&lt;th&gt;Col&lt;/th&gt;&lt;th&gt;Col&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;val&lt;/td&gt;&lt;td&gt;val&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt; for structured data — tables have navy headers and alternating row colors
+- Use &lt;ul&gt;&lt;li&gt;item&lt;/li&gt;&lt;/ul&gt; for bullet lists, &lt;strong&gt;bold&lt;/strong&gt; for emphasis
+- Use &lt;p&gt; for paragraphs — they have proper spacing
+- NEVER use markdown pipe tables — they will NOT render properly
 - Write professional, data-rich content suitable for a printed real estate brochure
 
 ## Tone Guidelines
