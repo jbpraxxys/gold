@@ -63,15 +63,17 @@ export interface ChatMessage {
 
 interface ToolInvocation {
   toolName?: string;
+  state?: string;
   result?: {
+    success?: boolean;
     files?: Array<{
       filename: string;
       format: string;
       size?: string;
       url?: string;
     }>;
-    html?: string;
-    content?: string;
+    downloadUrl?: string;
+    message?: string;
   };
 }
 
@@ -118,9 +120,9 @@ const documentResults = computed<DocResult[]>(() => {
 
   for (const invocation of props.message.toolInvocations) {
     const result = invocation.result;
-    if (!result) continue;
+    if (!result || !result.success) continue;
 
-    // Check for files array
+    // Pattern A: files array (Carbone tools)
     if (result.files && Array.isArray(result.files)) {
       for (const file of result.files) {
         files.push({
@@ -130,6 +132,28 @@ const documentResults = computed<DocResult[]>(() => {
           url: file.url || `/generated/${file.filename}`,
         });
       }
+    }
+
+    // Pattern B: single downloadUrl (spreadsheet, presentation)
+    if (result.downloadUrl && !result.files) {
+      const toolName = invocation.toolName || '';
+      const fmtMap: Record<string, string> = {
+        generate_spreadsheet: 'XLSX',
+        generate_presentation: 'PPTX',
+        generate_brochure: 'PDF',
+        generate_cma: 'PDF',
+        generate_comparison: 'PDF',
+      };
+      const fmt = fmtMap[toolName] || 'FILE';
+      const urlPath = result.downloadUrl;
+      const fname = urlPath.split('/').pop() || 'document';
+      
+      files.push({
+        filename: fname,
+        format: fmt,
+        size: result.message || '',
+        url: urlPath,
+      });
     }
   }
 

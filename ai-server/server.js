@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
+import path from 'node:path';
 import { streamText, tool } from 'ai';
 import { z } from 'zod';
 import { models } from './services/ai/client.ts';
@@ -12,6 +13,21 @@ const PORT = process.env.AI_SERVER_PORT || 3001;
 
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
+
+// Serve generated files (DOCX, PDF, XLSX, PPTX) — forces download
+const MIME_TYPES = {
+  '.pdf': 'application/pdf',
+  '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  '.pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+};
+app.use('/generated', express.static(path.resolve('public', 'generated'), {
+  setHeaders: (res, filePath) => {
+    const ext = path.extname(filePath).toLowerCase();
+    if (MIME_TYPES[ext]) res.set('Content-Type', MIME_TYPES[ext]);
+    res.set('Content-Disposition', `attachment; filename="${path.basename(filePath)}"`);
+  },
+}));
 
 // Health check
 app.get('/health', (_, res) => res.json({ status: 'ok' }));

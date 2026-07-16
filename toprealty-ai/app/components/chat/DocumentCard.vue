@@ -52,20 +52,18 @@ const props = defineProps<{
   url?: string;
 }>();
 
-const url = computed(() => props.url || `/generated/${props.filename}`);
+const AI_SERVER = 'http://localhost:3001';
+
+const url = computed(() => {
+  if (props.url) {
+    // If URL is relative (/generated/...), prepend the AI server
+    return props.url.startsWith('/') ? `${AI_SERVER}${props.url}` : props.url;
+  }
+  return `${AI_SERVER}/generated/${props.filename}`;
+});
 
 function handleDownload() {
-  if (props.url) {
-    window.open(props.url, '_blank');
-    return;
-  }
-
-  // Trigger download from generated directory
-  const link = document.createElement('a');
-  link.href = `/generated/${props.filename}`;
-  link.download = props.filename;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+  // Open the download URL — Express serves it with Content-Disposition header
+  window.open(url.value, '_blank');
 }
 </script>
