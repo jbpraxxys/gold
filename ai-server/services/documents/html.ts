@@ -11,7 +11,7 @@ import { marked } from 'marked';
 // Configure marked for rich rendering
 marked.setOptions({ breaks: true, gfm: true });
 
-function md( text: string): string {
+function md(text: string): string {
   if (!text) return '';
   const raw = marked.parse(text);
   return typeof raw === 'string' ? raw : '';
@@ -61,6 +61,9 @@ function baseHtml(body: string, title: string): string {
   th { background: #1A4175; color: #FFFFFF; padding: 8px 10px; font-size: 9pt; font-weight: 600; text-align: left; }
   td { padding: 8px 10px; border-bottom: 1px solid #E5E5E5; font-size: 9.5pt; }
   tr:nth-child(even) td { background: #F9FAFB; }
+  /* PDF-specific: ensure tables render with visible borders in Chromium headless */
+  .markdown-content table { border: 1px solid #D1D5DB; }
+  .markdown-content td, .markdown-content th { border: 1px solid #D1D5DB; }
   .price { color: #941D28; font-weight: 700; }
   .tag { display: inline-block; background: #1A4175; color: #FFF; padding: 2px 8px; border-radius: 3px; font-size: 8pt; font-weight: 600; margin-right: 4px; }
   .divider { border: none; border-top: 1px solid #E5E5E5; margin: 16px 0; }
