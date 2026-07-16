@@ -49,7 +49,7 @@ app.post('/api/chat', async (req, res) => {
       model: models.flash,
       system: SYSTEM_PROMPT,
       messages,
-      maxSteps: 10, // Multi-step: model → tools → continue
+      maxSteps: 5, // Multi-step: model → tools → respond (limit search loops)
       tools: {
         search_web: tool({
           description: 'Search the web for current Philippine real estate data.',
