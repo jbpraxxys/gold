@@ -1,6 +1,9 @@
-import PptxGenJS from 'pptxgenjs'
+import pptxgenjs from 'pptxgenjs'
 import fs from 'node:fs'
 import path from 'node:path'
+
+// Handle ESM/CJS interop — tsx dynamic imports may wrap the default
+const PptxGenJS: typeof pptxgenjs = (pptxgenjs as any).default || pptxgenjs
 
 const OUTPUT_DIR = path.resolve(process.cwd(), 'public', 'generated')
 
