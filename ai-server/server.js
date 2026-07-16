@@ -25,7 +25,10 @@ app.use('/generated', express.static(path.resolve('public', 'generated'), {
   setHeaders: (res, filePath) => {
     const ext = path.extname(filePath).toLowerCase();
     if (MIME_TYPES[ext]) res.set('Content-Type', MIME_TYPES[ext]);
-    res.set('Content-Disposition', `attachment; filename="${path.basename(filePath)}"`);
+    // Sanitize filename for HTTP header (strip non-ASCII, ₱→PHP)
+    const raw = path.basename(filePath);
+    const safe = raw.replace(/₱/g, 'PHP-').replace(/[^\x20-\x7E]/g, '').replace(/\s+/g, '-') || 'document';
+    res.set('Content-Disposition', `attachment; filename="${safe}"`);
   },
 }));
 
