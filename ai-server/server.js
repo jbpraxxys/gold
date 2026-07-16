@@ -122,12 +122,12 @@ app.post('/api/chat', async (req, res) => {
               const { executeComparison } = await import('./services/ai/tools/comparison.ts');
               // Format property array as readable text block (same pattern as brochure details)
               const details = input.properties.map((p, i) => {
-                return `PROPERTY ${i + 1}: ${p.name}
-Price: ${p.price}
-Specifications: ${p.specs}
-✅ Pros: ${p.pros}
-❌ Cons: ${p.cons}`;
-              }).join('\n\n');
+                return `\n━━━ PROPERTY ${i + 1}: ${p.name} ━━━\n` +
+                       `💰 Price: ${p.price}\n` +
+                       `📐 ${p.specs}\n\n` +
+                       `✅ Pros: ${p.pros}\n` +
+                       `❌ Cons: ${p.cons}\n`;
+              }).join('');
               return await executeComparison({ details });
             } catch (err) {
               return { success: false, message: `Comparison generation failed: ${err.message}` };
