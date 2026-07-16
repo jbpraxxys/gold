@@ -10,6 +10,7 @@ import { searchWeb } from './utils/tinyfish.ts';
 import { renderPresentationHtml } from './services/documents/presentation-json.ts';
 import { listTemplates, getTemplate } from './presentation-templates/registry.ts';
 import './presentation-templates/broker.ts'; // Register templates
+import './presentation-templates/luxury.ts';
 
 // ─── Helpers ────────────────────────────────────────────────────────
 function escapeHtml(str) {
@@ -216,7 +217,7 @@ broker:end → { message?: string, agent?: string }
 
 IMPORTANT: Use the EXACT field names shown above. specs=pipe-delimited table rows, highlights=bullet text, key_points=bullet text.`,
           parameters: z.object({
-            template: z.string().default('toprealty-broker').describe('Template ID. Currently available: toprealty-broker'),
+            template: z.string().default('toprealty-broker').describe('Template ID. Available: toprealty-broker (general real estate), toprealty-luxury (7-slide luxury showcase with gallery, location, investment)'),
             title: z.string().optional().describe('Presentation title'),
             format: z.enum(['pptx', 'pdf', 'html']).default('pptx'),
             slides: z.array(z.object({
