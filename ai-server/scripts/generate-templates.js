@@ -140,9 +140,9 @@ function buildBrochure() {
         }),
         divider(),
 
-        // Property details section (Carbone :br(true) converts \n to DOCX line breaks)
+        // Property details section (Carbone  converts \n to DOCX line breaks)
         subheading('Property Details'),
-        bodyLine('{d.details:br(true)}'),
+        bodyLine('{d.details}'),
         divider(),
 
         // Call to action
@@ -201,12 +201,12 @@ function buildCma() {
 
         // Comparable properties
         subheading('Comparable Properties'),
-        bodyLine('{d.comparables:br(true)}'),
+        bodyLine('{d.comparables}'),
         divider(),
 
         // Market analysis
         subheading('Market Trends & Analysis'),
-        bodyLine('{d.market_trends:br(true)}'),
+        bodyLine('{d.market_trends}'),
         divider(),
 
         // Disclaimer
@@ -300,7 +300,7 @@ function buildComparison() {
 
         // Carbone data block — uses a single {d.details} field
         // (same pattern as brochure — AI formats the comparison as text)
-        bodyLine('{d.details:br(true)}'),
+        bodyLine('{d.details}'),
         divider(),
 
         // Disclaimer
