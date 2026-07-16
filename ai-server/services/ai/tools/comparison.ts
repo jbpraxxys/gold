@@ -1,5 +1,5 @@
 import { comparisonHtml } from '../../documents/html.ts';
-import { renderPdf } from '../../documents/pdf.ts';
+import { renderPdf, renderDocx } from '../../documents/pdf.ts';
 
 export interface ComparisonInput {
   details?: string;
@@ -12,23 +12,31 @@ export interface ComparisonOutput {
   message: string;
   summary: string;
   downloadUrl: string;
+  files?: Array<{ filename: string; url: string }>;
 }
 
-/**
- * Generate a property comparison as PDF via HTML→Playwright pipeline.
- */
 export async function executeComparison(input: ComparisonInput): Promise<ComparisonOutput> {
   const propertyName = (input.propertyName || 'Property Comparison') as string;
   const details = (input.details || '') as string;
+  const baseName = sanitize(propertyName) + '-comparison';
 
   const html = comparisonHtml({ property_name: propertyName, details });
-  const result = await renderPdf(html, sanitize(propertyName) + '-comparison');
+
+  // Generate both PDF and DOCX from the same HTML
+  const [pdfResult, docResult] = await Promise.all([
+    renderPdf(html, baseName),
+    renderDocx(html, baseName),
+  ]);
 
   return {
     success: true,
-    message: `Property comparison generated as PDF.`,
-    summary: 'A side-by-side property comparison has been generated as PDF.',
-    downloadUrl: result.url,
+    message: `Property comparison generated as PDF and DOCX.`,
+    summary: 'A side-by-side property comparison has been generated in both formats.',
+    downloadUrl: pdfResult.url,
+    files: [
+      { filename: pdfResult.filename, url: pdfResult.url },
+      { filename: docResult.filename, url: docResult.url },
+    ],
   };
 }
 

@@ -1,8 +1,8 @@
 /**
- * PDF Renderer — HTML → PDF via Playwright (Chromium)
+ * PDF & DOCX Renderer — HTML → PDF/DOCX via Playwright & direct HTML
  * 
- * Replaces Carbone/LibreOffice pipeline with modern HTML→PDF.
- * Approach: structured JSON → HTML template → Playwright → PDF buffer
+ * PDF: Playwright Chromium renders HTML to PDF
+ * DOCX: Saves HTML as .doc — Word opens it natively with full formatting
  */
 
 import { chromium } from 'playwright';
@@ -54,4 +54,31 @@ export async function renderPdf(html: string, baseFilename: string): Promise<Pdf
   } finally {
     await browser.close();
   }
+}
+
+/**
+ * Renders an HTML string to a Word-compatible DOC file.
+ * Saves HTML with .doc extension — Microsoft Word opens it natively
+ * with full formatting (tables, bold, headings, lists).
+ * No dependencies required.
+ */
+export async function renderDocx(html: string, baseFilename: string): Promise<PdfResult> {
+  ensureOutputDir();
+
+  const timestamp = Date.now();
+  const filename = `${timestamp}-${baseFilename}.doc`;
+  const outputPath = path.join(OUTPUT_DIR, filename);
+
+  // Word-compatible wrapper with mso namespace
+  const docHtml = html.replace('</head>',
+    '<!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View></w:WordDocument></xml><![endif]-->'
+  );
+
+  fs.writeFileSync(outputPath, docHtml, 'utf-8');
+
+  return {
+    filename,
+    path: outputPath,
+    url: `/generated/${filename}`,
+  };
 }

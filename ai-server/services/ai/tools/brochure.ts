@@ -1,5 +1,5 @@
 import { brochureHtml } from '../../documents/html.ts';
-import { renderPdf } from '../../documents/pdf.ts';
+import { renderPdf, renderDocx } from '../../documents/pdf.ts';
 
 export interface BrochureInput {
   propertyData?: Record<string, unknown>;
@@ -26,7 +26,7 @@ export async function executeBrochure(input: BrochureInput): Promise<BrochureOut
   const details = (input.details || (input.propertyData as any)?.details || '') as string;
   const tone = (input.tone || (input.propertyData as any)?.tone || 'standard') as string;
 
-  // PDF via HTML → Playwright (primary)
+  // PDF via HTML → Playwright
   if (format === 'pdf') {
     const html = brochureHtml({ property_name: propertyName, details, tone });
     const result = await renderPdf(html, sanitize(propertyName));
@@ -37,19 +37,30 @@ export async function executeBrochure(input: BrochureInput): Promise<BrochureOut
     };
   }
 
-  // DOCX via Carbone (fallback)
-  const { renderDocument } = await import('../../documents/carbone.ts');
-  const carboneResult = await renderDocument('brochure.docx', {
-    property_name: propertyName,
-    details,
-    tone,
-    generated_date: new Date().toLocaleDateString('en-PH'),
-  }, { convertTo: 'docx' });
+  // DOCX via HTML → .doc (Word opens with full formatting)
+  if (format === 'docx') {
+    const html = brochureHtml({ property_name: propertyName, details, tone });
+    const result = await renderDocx(html, sanitize(propertyName));
+    return {
+      success: true,
+      message: `Brochure "${propertyName}" generated as DOCX.`,
+      files: [{ filename: result.filename, url: result.url }],
+    };
+  }
 
+  // Both
+  const html = brochureHtml({ property_name: propertyName, details, tone });
+  const [pdf, doc] = await Promise.all([
+    renderPdf(html, sanitize(propertyName)),
+    renderDocx(html, sanitize(propertyName)),
+  ]);
   return {
     success: true,
-    message: `Brochure "${propertyName}" generated as DOCX.`,
-    files: [{ filename: carboneResult.filename, url: carboneResult.url }],
+    message: `Brochure "${propertyName}" generated as PDF and DOCX.`,
+    files: [
+      { filename: pdf.filename, url: pdf.url },
+      { filename: doc.filename, url: doc.url },
+    ],
   };
 }
 

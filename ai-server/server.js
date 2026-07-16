@@ -23,6 +23,7 @@ app.use(express.json({ limit: '10mb' }));
 const MIME_TYPES = {
   '.pdf': 'application/pdf',
   '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  '.doc': 'application/msword',
   '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
   '.pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
 };
@@ -116,6 +117,7 @@ app.post('/api/chat', async (req, res) => {
                 subjectPrice: input.subjectPrice,
                 comparables: input.comparableProperties,
                 marketTrends: input.marketTrends,
+                format: 'pdf',
               });
             } catch (err) {
               return { success: false, message: `CMA generation failed: ${err.message}` };
