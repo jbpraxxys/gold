@@ -1,9 +1,9 @@
 import { renderPdf } from '../../documents/pdf.ts'
 import { renderPresentationHtml } from '../../documents/presentation-json.ts'
-import { getTemplate } from '../../presentation-templates/registry.ts'
+import { getTemplate } from '../../../presentation-templates/registry.ts'
 
 // Load templates (side-effect: registers them)
-import '../../presentation-templates/broker.ts'
+import '../../../presentation-templates/broker.ts'
 
 // Dynamic import of pptx.ts (has ESM/CJS interop)
 async function buildPptx(slides: any[], filename: string) {
@@ -31,7 +31,7 @@ export interface PresentationOutput {
 export async function executePresentation(input: PresentationInput): Promise<PresentationOutput> {
   const templateId = input.template || 'toprealty-broker'
   const template = getTemplate(templateId)
-  if (!template) return { success: false, message: `Template "${templateId}" not found. Available: ${require('../../presentation-templates/registry.ts').listTemplates().map((t: any) => t.id).join(', ')}` }
+  if (!template) return { success: false, message: `Template "${templateId}" not found. Available: ${Array.from((await import('../../../presentation-templates/registry.ts')).listTemplates()).map((t: any) => t.id).join(', ')}` }
 
   const format = input.format || 'pptx'
 
