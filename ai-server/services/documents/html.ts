@@ -1,10 +1,21 @@
 /**
  * HTML Templates — Converts structured JSON → styled HTML for PDF rendering
  * 
- * All styles are INLINE (not class-based) for maximum Playwright PDF compatibility.
- * Brand colors: navy #1A4175, maroon #941D28, white #FFFFFF, dark text #1A1A1A
- * Page size: A4 (210mm × 297mm)
+ * Uses marked to convert AI-generated markdown into rich styled HTML.
+ * All styles are INLINE for maximum Playwright PDF compatibility.
+ * Brand colors: navy #1A4175, maroon #941D28
  */
+
+import { marked } from 'marked';
+
+// Configure marked for rich rendering
+marked.setOptions({ breaks: true, gfm: true });
+
+function md( text: string): string {
+  if (!text) return '';
+  const raw = marked.parse(text);
+  return typeof raw === 'string' ? raw : '';
+}
 
 // ─── Base Layout ───────────────────────────────────────────────────
 
@@ -58,6 +69,14 @@ function baseHtml(body: string, title: string): string {
   ul { padding-left: 20px; margin: 6px 0; }
   li { margin-bottom: 4px; }
   .page-break { page-break-before: always; }
+  /* Markdown-rendered content */
+  .markdown-content p { margin: 6px 0; }
+  .markdown-content strong { color: #1A1A1A; }
+  .markdown-content ul, .markdown-content ol { padding-left: 20px; margin: 6px 0; }
+  .markdown-content li { margin-bottom: 4px; }
+  .markdown-content hr { border: none; border-top: 1px solid #E5E5E5; margin: 12px 0; }
+  .markdown-content code { background: #F3F4F6; padding: 1px 4px; border-radius: 2px; font-size: 9pt; }
+  .markdown-content blockquote { border-left: 3px solid #1A4175; padding-left: 12px; color: #555; margin: 8px 0; }
 </style>
 </head>
 <body>
@@ -94,8 +113,8 @@ export function brochureHtml(data: {
 </p>
 
 <h2>Property Details</h2>
-<div style="white-space: pre-line; line-height: 1.8;">
-${escapeHtml(data.details)}
+<div class="markdown-content">
+${md(data.details)}
 </div>
 
 <hr class="divider">
@@ -126,13 +145,13 @@ export function cmaHtml(data: {
 </div>
 
 <h2>Comparable Properties</h2>
-<div style="white-space: pre-line; line-height: 1.7;">
-${escapeHtml(data.comparables)}
+<div class="markdown-content">
+${md(data.comparables)}
 </div>
 
 <h2>Market Trends &amp; Analysis</h2>
-<div style="white-space: pre-line; line-height: 1.7;">
-${escapeHtml(data.market_trends)}
+<div class="markdown-content">
+${md(data.market_trends)}
 </div>
 
 <hr class="divider">
@@ -156,8 +175,8 @@ export function comparisonHtml(data: {
   const body = `
 <h1>${escapeHtml(data.property_name || 'Property Comparison')}</h1>
 
-<div style="white-space: pre-line; line-height: 1.8;">
-${escapeHtml(data.details)}
+<div class="markdown-content">
+${md(data.details)}
 </div>
 
 <hr class="divider">
