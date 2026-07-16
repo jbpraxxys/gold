@@ -49,8 +49,21 @@ app.post('/api/chat', async (req, res) => {
             tone: z.enum(['luxury', 'family', 'investment', 'standard']).default('standard'),
           }),
           execute: async (input) => {
-            const { generateBrochure } = await import('./services/ai/tools/brochure.ts');
-            return generateBrochure(input);
+            try {
+              const { executeBrochure } = await import('./services/ai/tools/brochure.ts');
+              const fmt = input.format === 'both' ? 'pdf' : input.format;
+              return await executeBrochure({
+                propertyData: {
+                  property_name: input.propertyName,
+                  details: input.propertyDetails,
+                  tone: input.tone,
+                  generated_date: new Date().toLocaleDateString('en-PH'),
+                },
+                format: fmt,
+              });
+            } catch (err) {
+              return { success: false, message: `Brochure generation failed: ${err.message}` };
+            }
           },
         }),
 
@@ -63,8 +76,20 @@ app.post('/api/chat', async (req, res) => {
             marketTrends: z.string(),
           }),
           execute: async (input) => {
-            const { generateCMA } = await import('./services/ai/tools/cma.ts');
-            return generateCMA(input);
+            try {
+              const { executeCma } = await import('./services/ai/tools/cma.ts');
+              return await executeCma({
+                cmaData: {
+                  subject_name: input.subjectProperty,
+                  subject_price: input.subjectPrice,
+                  comparables: input.comparableProperties,
+                  market_trends: input.marketTrends,
+                  generated_date: new Date().toLocaleDateString('en-PH'),
+                },
+              });
+            } catch (err) {
+              return { success: false, message: `CMA generation failed: ${err.message}` };
+            }
           },
         }),
 
@@ -77,8 +102,17 @@ app.post('/api/chat', async (req, res) => {
             })),
           }),
           execute: async (input) => {
-            const { generateComparison } = await import('./services/ai/tools/comparison.ts');
-            return generateComparison(input);
+            try {
+              const { executeComparison } = await import('./services/ai/tools/comparison.ts');
+              return await executeComparison({
+                comparisonData: {
+                  properties: input.properties,
+                  generated_date: new Date().toLocaleDateString('en-PH'),
+                },
+              });
+            } catch (err) {
+              return { success: false, message: `Comparison generation failed: ${err.message}` };
+            }
           },
         }),
 
@@ -88,13 +122,20 @@ app.post('/api/chat', async (req, res) => {
             propertyName: z.string(),
             slides: z.array(z.object({
               title: z.string(), content: z.string(),
-              type: z.enum(['title', 'content', 'two_column', 'chart']).default('content'),
+              type: z.enum(['title', 'content', 'two_column']).default('content'),
             })),
             includeFinancials: z.boolean().default(false),
           }),
           execute: async (input) => {
-            const { generatePresentation } = await import('./services/ai/tools/presentation.ts');
-            return generatePresentation(input);
+            try {
+              const { executePresentation } = await import('./services/ai/tools/presentation.ts');
+              return await executePresentation({
+                title: input.propertyName,
+                slides: input.slides,
+              });
+            } catch (err) {
+              return { success: false, message: `Presentation generation failed: ${err.message}` };
+            }
           },
         }),
 
@@ -106,8 +147,17 @@ app.post('/api/chat', async (req, res) => {
             sheetName: z.string().default('Sheet1'),
           }),
           execute: async (input) => {
-            const { generateSpreadsheet } = await import('./services/ai/tools/spreadsheet.ts');
-            return generateSpreadsheet(input);
+            try {
+              const { executeSpreadsheet } = await import('./services/ai/tools/spreadsheet.ts');
+              return await executeSpreadsheet({
+                title: input.title,
+                headers: input.headers,
+                rows: input.rows,
+                filename: `${input.title.toLowerCase().replace(/\s+/g, '-')}.xlsx`,
+              });
+            } catch (err) {
+              return { success: false, message: `Spreadsheet generation failed: ${err.message}` };
+            }
           },
         }),
       },
