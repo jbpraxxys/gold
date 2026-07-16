@@ -60,10 +60,19 @@ app.post('/api/chat', async (req, res) => {
         }),
 
         generate_brochure: tool({
-          description: 'Generate a property brochure in DOCX or PDF format.',
+          description: 'Generate a professional property brochure as PDF. The content will be rendered with proper typography, tables, and styling — so write the propertyDetails in rich markdown format suitable for a printed document.',
           parameters: z.object({
             propertyName: z.string(),
-            propertyDetails: z.string(),
+            propertyDetails: z.string().describe(
+              'Full property description in markdown format. Use ## headings for sections, **bold** for key specs, tables for structured data, --- for dividers. Write as a professional printed brochure — include an opening introduction, location highlights, specs table, amenities section, investment highlights, and call-to-action. Example format:\n\n' +
+              '## Overview\n[1-2 paragraph introduction about the property]\n\n' +
+              '## Location & Accessibility\n[Neighborhood description, landmarks, transport]\n\n' +
+              '## Unit Specifications\n\n' +
+              '| Feature | Detail |\n|---------|--------|\n| Price | ₱X,XXX,XXX |\n| Floor Area | XX sqm |\n...\n\n' +
+              '## Amenities\n- ✓ Item one\n- ✓ Item two\n\n' +
+              '## Investment Highlights\n- Strong appreciation potential\n- High rental yield\n\n' +
+              '## Contact\nTopRealty AI | www.toprealty.ai'
+            ),
             format: z.enum(['docx', 'pdf', 'both']).default('pdf'),
             tone: z.enum(['luxury', 'family', 'investment', 'standard']).default('standard'),
           }),
@@ -84,12 +93,16 @@ app.post('/api/chat', async (req, res) => {
         }),
 
         generate_cma: tool({
-          description: 'Generate a Comparative Market Analysis report.',
+          description: 'Generate a professional Comparative Market Analysis (CMA) report as PDF. Use rich markdown formatting — the report will be rendered with proper typography, styled tables, and section headings.',
           parameters: z.object({
             subjectProperty: z.string(),
             subjectPrice: z.string(),
-            comparableProperties: z.string(),
-            marketTrends: z.string(),
+            comparableProperties: z.string().describe(
+              'Comparable property analysis in markdown. Use a table with columns: Property Name | Price | Size (sqm) | Price/sqm | Location | Key Features. Include at least 4-6 comparable properties. Below the table, add a 1-paragraph comparative analysis summarizing pricing trends and how the subject property compares.'
+            ),
+            marketTrends: z.string().describe(
+              'Market analysis in markdown. Use ## headings for sections. Include: price trends (past 12 months), supply & demand analysis, neighborhood developments, and a recommended price range. Use **bold** for key figures and --- for section breaks.'
+            ),
           }),
           execute: async (input) => {
             try {
@@ -107,11 +120,17 @@ app.post('/api/chat', async (req, res) => {
         }),
 
         generate_comparison: tool({
-          description: 'Generate a side-by-side property comparison.',
+          description: 'Generate a professional side-by-side property comparison PDF. Provide clear, well-structured data for each property. Each property should include complete specs and balanced pros/cons.',
           parameters: z.object({
             properties: z.array(z.object({
-              name: z.string(), price: z.string(), specs: z.string(),
-              pros: z.string(), cons: z.string(),
+              name: z.string().describe('Property name with developer (e.g., "Uptown Parksuites by Megaworld")'),
+              price: z.string().describe('Price range or specific price (e.g., "₱4M – ₱85M" or "Starting at ₱7.5M")'),
+              specs: z.string().describe(
+                'Key specifications in markdown table format. Include: Location, Developer, Unit Types, Floor Areas, Year Completed, Amenities. Use | table | format | for structured data. Example:\n' +
+                '| Feature | Detail |\n|---|---|\n| Developer | Megaworld |\n| Location | Uptown Bonifacio |\n| Unit Sizes | 33-453 sqm |\n| Year | 2017-2020 |'
+              ),
+              pros: z.string().describe('Advantages as a markdown list. Use ✓ for each point. Include location benefits, developer reputation, investment potential, amenities. Format: "✓ [point]" each on new line.'),
+              cons: z.string().describe('Disadvantages as a markdown list. Use ✗ for each point. Be honest and balanced. Format: "✗ [point]" each on new line.'),
             })),
           }),
           execute: async (input) => {
