@@ -1,20 +1,21 @@
 <template>
   <div class="relative">
-    <div class="flex items-center gap-3.5 bg-gray-100 border border-gray-200 rounded-full py-3.5 pl-6.5 pr-3.5">
+    <div class="flex items-center gap-3.5 bg-gray-100 border border-gray-200 rounded-3xl py-2.5 pl-6.5 pr-3.5">
       <!-- Text input -->
-      <input
+      <textarea
+        ref="textareaRef"
         :value="modelValue"
-        type="text"
+        rows="1"
         autocomplete="off"
         :placeholder="placeholder"
-        class="flex-1 border-none bg-transparent text-sm font-sans text-gray-900 focus:outline-none"
-        @input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)"
-        @keydown.enter="$emit('submit')"
+        class="flex-1 border-none bg-transparent text-sm font-sans text-gray-900 focus:outline-none resize-none overflow-hidden"
+        @input="onInput"
+        @keydown.enter.exact.prevent="handleEnterSubmit"
         :disabled="loading"
       />
 
       <!-- Actions -->
-      <div class="flex items-center gap-4">
+      <div class="flex items-center gap-4 self-end pb-0.5">
         <!-- Microphone icon (decorative) -->
         <span class="w-5 h-5 opacity-80 inline-flex items-center justify-center">
           <svg width="100%" height="100%" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -49,7 +50,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref, nextTick, watch } from 'vue';
 
 const props = withDefaults(
   defineProps<{
@@ -64,10 +65,46 @@ const props = withDefaults(
   },
 );
 
-defineEmits<{
+const emit = defineEmits<{
   submit: [];
   'update:modelValue': [value: string];
 }>();
 
+const textareaRef = ref<HTMLTextAreaElement | null>(null);
+
 const trimmed = computed(() => (props.modelValue || '').trim());
+
+function autoResize() {
+  const el = textareaRef.value;
+  if (!el) return;
+
+  // Reset height to "auto" so scrollHeight reflects the true content height
+  el.style.height = 'auto';
+
+  // Clamp between 1 row (min) and ~6 rows (max)
+  const lineHeight = parseFloat(getComputedStyle(el).lineHeight);
+  const paddingTop = parseFloat(getComputedStyle(el).paddingTop);
+  const paddingBottom = parseFloat(getComputedStyle(el).paddingBottom);
+  const minHeight = lineHeight + paddingTop + paddingBottom;
+  const maxHeight = lineHeight * 6 + paddingTop + paddingBottom;
+
+  const newHeight = Math.min(Math.max(el.scrollHeight, minHeight), maxHeight);
+  el.style.height = `${newHeight}px`;
+}
+
+function onInput(event: Event) {
+  const target = event.target as HTMLTextAreaElement;
+  emit('update:modelValue', target.value);
+  autoResize();
+}
+
+function handleEnterSubmit() {
+  if (!trimmed.value) return;
+  emit('submit');
+}
+
+// Auto-resize when modelValue changes externally (e.g. cleared by parent)
+watch(() => props.modelValue, () => {
+  nextTick(() => autoResize());
+});
 </script>
