@@ -156,12 +156,14 @@ app.post('/api/chat', async (req, res) => {
         }),
 
         generate_presentation: tool({
-          description: 'Generate an investor PowerPoint presentation.',
+          description: 'Generate a professional PowerPoint presentation with TopRealty branding (navy theme, slide numbers, branded master). Supports 6 slide types.',
           parameters: z.object({
             propertyName: z.string(),
             slides: z.array(z.object({
               title: z.string(), content: z.string(),
-              type: z.enum(['title', 'content', 'two_column']).default('content'),
+              type: z.enum(['title', 'content', 'two_column', 'section', 'bullets', 'end']).default('content').describe(
+                'title=opening slide, content=heading+body, two_column=comparison, section=divider, bullets=bulleted list, end=closing slide'
+              ),
             })),
             includeFinancials: z.boolean().default(false),
           }),
