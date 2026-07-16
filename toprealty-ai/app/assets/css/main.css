@@ -1,0 +1,211 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --navy: #1a4175;
+  --navy-light: #2a5a9a;
+  --navy-dark: #0f2d52;
+  --maroon: #941d28;
+  --maroon-light: #b82432;
+  --maroon-dark: #6e1520;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: #f8f9fa;
+}
+
+/* Chat bubble styles */
+.bubble-user {
+  background-color: var(--navy);
+  color: white;
+  border-radius: 18px 18px 4px 18px;
+}
+
+.bubble-ai {
+  background-color: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px 18px 18px 4px;
+}
+
+/* Document card */
+.doc-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  transition: all 0.2s;
+}
+.doc-card:hover {
+  border-color: var(--navy);
+  box-shadow: 0 4px 12px rgba(26, 65, 117, 0.1);
+}
+
+/* Valuation box */
+.valuation-box {
+  background: linear-gradient(135deg, var(--navy), var(--navy-dark));
+  color: white;
+  border-radius: 16px;
+  padding: 24px;
+}
+
+/* Checklist */
+.checklist {
+  list-style: none;
+  padding: 0;
+}
+.checklist li::before {
+  content: '✓';
+  color: var(--maroon);
+  font-weight: bold;
+  margin-right: 8px;
+}
+
+/* Thinking dots animation */
+@keyframes pulse {
+  0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); }
+  40% { opacity: 1; transform: scale(1.2); }
+}
+.thinking-dots .dot {
+  animation: pulse 1.4s infinite;
+}
+.thinking-dots .dot:nth-child(2) { animation-delay: 0.2s; }
+.thinking-dots .dot:nth-child(3) { animation-delay: 0.4s; }
+
+/* Marquee animation */
+@keyframes marquee-left {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+@keyframes marquee-right {
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(0); }
+}
+.marquee-left { animation: marquee-left 60s linear infinite; }
+.marquee-right { animation: marquee-right 60s linear infinite; }
+.marquee-left:hover, .marquee-right:hover { animation-play-state: paused; }
+
+/* Chat scroll area */
+.chat-scroll {
+  max-height: calc(100vh - 180px);
+  overflow-y: auto;
+  scroll-behavior: smooth;
+}
+
+/* ===== AI Chat Bubble Rich Content Styling ===== */
+.bubble-ai-content p {
+  margin: 0 0 12px 0;
+  line-height: 1.65;
+}
+.bubble-ai-content p:last-child {
+  margin-bottom: 0;
+}
+
+.bubble-ai-content h2 {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--navy);
+  margin: 24px 0 10px 0;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #e2e8f0;
+}
+.bubble-ai-content h2:first-child {
+  margin-top: 0;
+}
+
+.bubble-ai-content h3 {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--navy-dark);
+  margin: 18px 0 8px 0;
+}
+.bubble-ai-content h3:first-child {
+  margin-top: 0;
+}
+
+.bubble-ai-content ul,
+.bubble-ai-content ol {
+  margin: 8px 0 14px 0;
+  padding-left: 20px;
+}
+.bubble-ai-content li {
+  margin-bottom: 4px;
+  line-height: 1.55;
+}
+.bubble-ai-content li:last-child {
+  margin-bottom: 0;
+}
+
+.bubble-ai-content hr {
+  border: none;
+  border-top: 1px solid #e2e8f0;
+  margin: 20px 0;
+}
+
+/* Tables */
+.bubble-ai-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 12px 0 16px 0;
+  font-size: 13px;
+  overflow: hidden;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+}
+.bubble-ai-content thead th {
+  background: var(--navy);
+  color: white;
+  font-weight: 600;
+  text-align: left;
+  padding: 8px 12px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+.bubble-ai-content tbody td {
+  padding: 8px 12px;
+  border-bottom: 1px solid #e5e7eb;
+  vertical-align: top;
+}
+.bubble-ai-content tbody tr:last-child td {
+  border-bottom: none;
+}
+.bubble-ai-content tbody tr:nth-child(even) {
+  background: #f9fafb;
+}
+
+.bubble-ai-content strong {
+  font-weight: 600;
+  color: #111827;
+}
+
+.bubble-ai-content code {
+  background: #f1f5f9;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+}
+
+.bubble-ai-content blockquote {
+  border-left: 3px solid var(--navy);
+  margin: 12px 0;
+  padding: 6px 14px;
+  background: #f8fafc;
+  border-radius: 0 6px 6px 0;
+  color: #475569;
+  font-style: italic;
+}
+
+/* Live typing cursor (when streaming) */
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+.streaming-cursor::after {
+  content: '▌';
+  animation: blink 1s infinite;
+  color: var(--navy);
+  font-weight: 400;
+}

@@ -1,0 +1,31 @@
+{
+  "name": "toprealty-ai",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare"
+  },
+  "dependencies": {
+    "@ai-sdk/openai-compatible": "^3.0.11",
+    "@ai-sdk/vue": "^1.2.12",
+    "@nuxtjs/tailwindcss": "^6.14.0",
+    "ai": "^7.0.29",
+    "carbone": "^3.8.2",
+    "exceljs": "^4.4.0",
+    "marked": "^18.0.6",
+    "nuxt": "^4.4.8",
+    "pptxgenjs": "^4.0.1",
+    "vue": "^3.5.39",
+    "vue-router": "^5.1.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.1",
+    "typescript": "^7.0.2",
+    "vue-tsc": "^3.3.7"
+  }
+}

@@ -1,0 +1,167 @@
+[
+  {
+    "name": "The Residences at Greenbelt - Makati",
+    "type": "Luxury Condo",
+    "location": "Greenbelt, Makati CBD, Metro Manila",
+    "price": "₱85,000,000",
+    "sqm": 210,
+    "bedrooms": 3,
+    "bathrooms": 3,
+    "price_per_sqm": "₱404,762",
+    "amenities": [
+      "24/7 Concierge",
+      "Infinity Pool",
+      "Private Cinema",
+      "Fitness Center",
+      "Underground Parking",
+      "Smart Home System",
+      "Wine Cellar",
+      "Spa & Sauna"
+    ],
+    "description": "An ultra-luxury residence in the heart of Makati's premier lifestyle district. Steps away from Greenbelt's high-end boutiques and restaurants, this unit offers panoramic skyline views and bespoke finishes throughout."
+  },
+  {
+    "name": "Avida Towers Verte - BGC",
+    "type": "Mid-Range Condo",
+    "location": "9th Avenue, BGC, Taguig, Metro Manila",
+    "price": "₱8,500,000",
+    "sqm": 36,
+    "bedrooms": 1,
+    "bathrooms": 1,
+    "price_per_sqm": "₱236,111",
+    "amenities": [
+      "Swimming Pool",
+      "Function Hall",
+      "Play Area",
+      "24/7 Security",
+      "Laundry Station",
+      "Convenience Store"
+    ],
+    "description": "A well-appointed studio unit perfect for young professionals working in BGC. Avida Towers Verte offers exceptional value with modern amenities and a prime location near corporate offices and lifestyle hubs."
+  },
+  {
+    "name": "Ayala Alabang Village - Muntinlupa",
+    "type": "House & Lot",
+    "location": "Ayala Alabang, Muntinlupa, Metro Manila",
+    "price": "₱65,000,000",
+    "sqm": 450,
+    "bedrooms": 5,
+    "bathrooms": 4,
+    "price_per_sqm": "₱144,444",
+    "amenities": [
+      "Private Garden",
+      "Swimming Pool",
+      "Maid's Quarters",
+      "Three-Car Garage",
+      "Home Office",
+      "Outdoor Entertainment Area",
+      "Gated Community",
+      "Clubhouse Access"
+    ],
+    "description": "A sprawling family estate in the prestigious Ayala Alabang Village. This meticulously maintained home features tropical landscaping, generous living spaces, and the security of one of Metro Manila's most exclusive gated communities."
+  },
+  {
+    "name": "Rockwell Center - Makati",
+    "type": "Luxury Condo",
+    "location": "Rockwell Drive, Makati, Metro Manila",
+    "price": "₱120,000,000",
+    "sqm": 280,
+    "bedrooms": 4,
+    "bathrooms": 4,
+    "price_per_sqm": "₱428,571",
+    "amenities": [
+      "Private Elevator Lobby",
+      "Sky Garden",
+      "Lap Pool",
+      "Gym & Yoga Studio",
+      "Pet Park",
+      "Children's Playroom",
+      "Private Storage",
+      "Valet Parking"
+    ],
+    "description": "A signature Rockwell Land residence offering the pinnacle of refined urban living. This expansive four-bedroom unit features floor-to-ceiling windows, imported marble finishes, and exclusive access to the Power Plant Mall lifestyle complex."
+  },
+  {
+    "name": "DMCI Homes Zinnia Towers - Quezon City",
+    "type": "Mid-Range Condo",
+    "location": "EDSA, North Avenue, Quezon City, Metro Manila",
+    "price": "₱6,200,000",
+    "sqm": 42,
+    "bedrooms": 2,
+    "bathrooms": 1,
+    "price_per_sqm": "₱147,619",
+    "amenities": [
+      "Sky Park",
+      "Jogging Path",
+      "Basketball Court",
+      "Swimming Pool",
+      "Daycare Center",
+      "Convenience Store",
+      "24/7 Security"
+    ],
+    "description": "A spacious two-bedroom unit by trusted developer DMCI Homes. Located along EDSA North Avenue, this property offers excellent connectivity to Trinoma, SM North EDSA, and major transport hubs at an accessible price point."
+  },
+  {
+    "name": "Ortigas Center Commercial Space - Pasig",
+    "type": "Commercial",
+    "location": "San Miguel Avenue, Ortigas Center, Pasig, Metro Manila",
+    "price": "₱35,000,000",
+    "sqm": 180,
+    "bedrooms": 0,
+    "bathrooms": 2,
+    "price_per_sqm": "₱194,444",
+    "amenities": [
+      "Open-Plan Layout",
+      "Central Air Conditioning",
+      "Dedicated Elevator Access",
+      "Backup Generator",
+      "Fiber-Ready",
+      "Two Parking Slots",
+      "24/7 Building Security",
+      "Drop-Off Area"
+    ],
+    "description": "Prime commercial space in the bustling Ortigas Center business district. Ideal for corporate headquarters, co-working spaces, or flagship retail, this bare-shell unit provides maximum layout flexibility with excellent building frontage."
+  },
+  {
+    "name": "SMDC Lush Residences - BGC",
+    "type": "Mid-Range Condo",
+    "location": "McKinley Parkway, BGC, Taguig, Metro Manila",
+    "price": "₱12,500,000",
+    "sqm": 55,
+    "bedrooms": 2,
+    "bathrooms": 2,
+    "price_per_sqm": "₱227,273",
+    "amenities": [
+      "Resort-Style Pool",
+      "Fitness Gym",
+      "Function Rooms",
+      "Jogging Path",
+      "Playground",
+      "Retail Arcade",
+      "24/7 Security",
+      "Property Management Office"
+    ],
+    "description": "A stylish two-bedroom condo by SMDC in the heart of BGC. Lush Residences offers resort-inspired amenities with a focus on green living, making it ideal for families seeking urban convenience with a refreshing atmosphere."
+  },
+  {
+    "name": "Valle Verde 5 Townhouse - Pasig",
+    "type": "House & Lot",
+    "location": "Valle Verde 5, Pasig, Metro Manila",
+    "price": "₱28,000,000",
+    "sqm": 200,
+    "bedrooms": 4,
+    "bathrooms": 3,
+    "price_per_sqm": "₱140,000",
+    "amenities": [
+      "Private Garage (2 Cars)",
+      "Garden Patio",
+      "Maid's Room",
+      "Updated Kitchen",
+      "Gated Subdivision",
+      "Near Schools",
+      "Basketball Court (Village)",
+      "Clubhouse"
+    ],
+    "description": "A well-maintained townhouse in the family-friendly Valle Verde 5 subdivision. This two-story home sits on a generous lot with a private garden, offering suburban comfort with easy access to Ortigas and C5 business corridors."
+  }
+]

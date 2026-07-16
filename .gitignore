@@ -1,0 +1,8 @@
+node_modules/
+.codebase-index-store/
+.opencode/
+.output/
+.nuxt/
+dist/
+*.log
+.env
