@@ -13,18 +13,19 @@ export interface ComparisonOutput {
 }
 
 /**
- * Generate a property comparison document as PDF.
+ * Generate a property comparison document as DOCX.
  * Renders a Carbone DOCX template with multi-property comparison data.
+ * (PDF conversion requires LibreOffice — DOCX is ready instantly.)
  */
 export async function executeComparison(input: ComparisonInput): Promise<ComparisonOutput> {
   const result = await renderDocument('comparison.docx', input.comparisonData, {
-    convertTo: 'pdf',
+    convertTo: 'docx',
   })
 
   return {
     success: true,
-    message: 'Property comparison generated successfully.',
-    summary: 'A side-by-side property comparison report has been generated, highlighting key differences in price, square footage, bedrooms, bathrooms, amenities, and location features. Download the PDF for the complete analysis.',
+    message: 'Property comparison generated successfully as DOCX.',
+    summary: 'A side-by-side property comparison report has been generated. Download the DOCX file for the complete analysis.',
     downloadUrl: result.url,
   }
 }

@@ -13,18 +13,18 @@ export interface CmaOutput {
 }
 
 /**
- * Generate a Comparative Market Analysis (CMA) report as PDF.
- * Uses a Carbone DOCX template and converts to PDF.
+ * Generate a Comparative Market Analysis (CMA) report as DOCX.
+ * Uses a Carbone DOCX template. (PDF conversion requires LibreOffice.)
  */
 export async function executeCma(input: CmaInput): Promise<CmaOutput> {
   const result = await renderDocument('cma-report.docx', input.cmaData, {
-    convertTo: 'pdf',
+    convertTo: 'docx',
   })
 
   return {
     success: true,
-    message: 'CMA report generated successfully.',
-    summary: 'A comprehensive Comparative Market Analysis (CMA) report has been generated, including comparable property analysis, market trends, valuation adjustments, and a recommended listing price range. Download the full PDF for detailed charts and data.',
+    message: 'CMA report generated successfully as DOCX.',
+    summary: 'A comprehensive Comparative Market Analysis (CMA) report has been generated. Download the DOCX for detailed charts and data.',
     downloadUrl: result.url,
   }
 }
