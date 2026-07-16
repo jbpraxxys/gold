@@ -71,6 +71,7 @@ function baseHtml(body: string, title: string): string {
   .tag { display: inline-block; background: #1A4175; color: #FFF; padding: 2px 8px; border-radius: 3px; font-size: 8pt; font-weight: 600; margin-right: 4px; }
   .divider { border: none; border-top: 1px solid #E5E5E5; margin: 16px 0; }
   .card { background: #F9FAFB; border-left: 4px solid #1A4175; padding: 12px 16px; margin: 10px 0; }
+  .card table { margin: 4px 0; }
   .highlight { background: #FFF3E0; border-left: 4px solid #941D28; padding: 10px 14px; margin: 10px 0; }
   ul { padding-left: 20px; margin: 6px 0; }
   li { margin-bottom: 4px; }

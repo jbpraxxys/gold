@@ -8,6 +8,11 @@ import { models } from './services/ai/client.ts';
 import { SYSTEM_PROMPT } from './services/ai/prompts.ts';
 import { searchWeb } from './utils/tinyfish.ts';
 
+// ─── Helpers ────────────────────────────────────────────────────────
+function escapeHtml(str) {
+  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
 const app = express();
 const PORT = process.env.AI_SERVER_PORT || 3001;
 
@@ -125,22 +130,22 @@ app.post('/api/chat', async (req, res) => {
               name: z.string().describe('Property name with developer (e.g., "Uptown Parksuites by Megaworld")'),
               price: z.string().describe('Price range or specific price (e.g., "₱4M – ₱85M" or "Starting at ₱7.5M")'),
               specs: z.string().describe(
-                'KEY SPECIFICATIONS as an HTML <table>. Required columns: Feature | Detail. Include rows for: Developer, Location, Unit Types, Floor Areas, Year Completed, Price per sqm, Parking, Main Amenities. This table will be rendered with navy header and professional styling in the PDF.'
+                'Specs as an HTML <table>. Required: <table><tr><th>Feature</th><th>Detail</th></tr><tr><td><strong>Developer</strong></td><td>Name</td></tr>...<tr><td><strong>Location</strong></td><td>Address</td></tr>...<tr><td><strong>Floor Areas</strong></td><td>XX-XX sqm</td></tr>...<tr><td><strong>Main Amenities</strong></td><td>list</td></tr></table>. Use <strong> on labels. NO markdown pipes.'
               ),
-              pros: z.string().describe('Advantages as a markdown list. Use ✓ for each point. Include location benefits, developer reputation, investment potential, amenities. Format: "✓ [point]" each on new line.'),
-              cons: z.string().describe('Disadvantages as a markdown list. Use ✗ for each point. Be honest and balanced. Format: "✗ [point]" each on new line.'),
+              pros: z.string().describe('Advantages as bullet points. Format each as a single line starting with the key point. Will be rendered as <ul> list items.'),
+              cons: z.string().describe('Disadvantages as bullet points. Format each as a single line starting with the key point. Will be rendered as <ul> list items.'),
             })),
           }),
           execute: async (input) => {
             try {
               const { executeComparison } = await import('./services/ai/tools/comparison.ts');
               const details = input.properties.map((p, i) => {
-                return `\n━━━ PROPERTY ${i + 1}: ${p.name} ━━━\n` +
-                       `💰 Price: ${p.price}\n` +
-                       `📐 ${p.specs}\n\n` +
-                       `✅ Pros: ${p.pros}\n` +
-                       `❌ Cons: ${p.cons}\n`;
-              }).join('');
+                return `\n<h2>${escapeHtml(p.name)}</h2>\n` +
+                       `<p><strong>Price:</strong> ${escapeHtml(p.price)}</p>\n` +
+                       `<div class="card">\n${p.specs}\n</div>\n` +
+                       `<h3>Advantages</h3>\n<ul>\n${p.pros.split('\n').filter(l => l.trim()).map(l => `<li>${escapeHtml(l.replace(/^[✓✅]\s*/, ''))}</li>`).join('\n')}\n</ul>\n` +
+                       `<h3>Considerations</h3>\n<ul>\n${p.cons.split('\n').filter(l => l.trim()).map(l => `<li>${escapeHtml(l.replace(/^[✗❌]\s*/, ''))}</li>`).join('\n')}\n</ul>\n`;
+              }).join('<hr class="divider">');
               return await executeComparison({ details, propertyName: 'Property Comparison' });
             } catch (err) {
               return { success: false, message: `Comparison generation failed: ${err.message}` };
