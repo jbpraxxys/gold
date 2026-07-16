@@ -7,6 +7,7 @@ import { z } from 'zod';
 import { models } from './services/ai/client.ts';
 import { SYSTEM_PROMPT } from './services/ai/prompts.ts';
 import { searchWeb } from './utils/tinyfish.ts';
+import { renderPresentationHtml } from './services/documents/presentation-json.ts';
 
 // ─── Helpers ────────────────────────────────────────────────────────
 function escapeHtml(str) {
@@ -40,6 +41,16 @@ app.use('/generated', express.static(path.resolve('public', 'generated'), {
 
 // Health check
 app.get('/health', (_, res) => res.json({ status: 'ok' }));
+
+// Presentation preview — renders slide JSON as HTML
+app.post('/api/preview/presentation', (req, res) => {
+  try {
+    const html = renderPresentationHtml(req.body);
+    res.set('Content-Type', 'text/html').send(html);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
 
 // AI Chat endpoint — streaming with multi-step tool calling
 app.post('/api/chat', async (req, res) => {
