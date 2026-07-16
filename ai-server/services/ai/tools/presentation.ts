@@ -1,45 +1,101 @@
-import { buildPresentation } from '../../documents/pptx'
+import { renderPdf } from '../../documents/pdf.ts'
+import { renderPresentationHtml } from '../../documents/presentation-json.ts'
+import { getTemplate } from '../../presentation-templates/registry.ts'
 
-export interface PresentationSlide {
-  title: string
-  content: string
-  type: 'title' | 'content' | 'two_column'
-  left?: { title: string; content: string }
-  right?: { title: string; content: string }
+// Load templates (side-effect: registers them)
+import '../../presentation-templates/broker.ts'
+
+// Dynamic import of pptx.ts (has ESM/CJS interop)
+async function buildPptx(slides: any[], filename: string) {
+  const { buildPresentation } = await import('../../documents/pptx.ts')
+  return buildPresentation(slides, filename)
 }
 
 export interface PresentationInput {
-  /** Title for the presentation (used as part of the filename) */
-  title: string
-  /** Slides to include */
-  slides: PresentationSlide[]
+  template?: string
+  title?: string,
+  slides: Array<{
+    layout: string    // e.g., 'broker:title' or 'broker:property-overview'
+    content: Record<string, any>
+  }>
+  format?: 'pptx' | 'pdf' | 'html'
 }
 
 export interface PresentationOutput {
   success: boolean
   message: string
-  slideCount: number
-  downloadUrl: string
+  downloadUrl?: string
+  files?: Array<{ filename: string; url: string; format: string }>
 }
 
-/**
- * Generate a PowerPoint presentation from slide definitions.
- * Supports title slides, content slides, and two-column layouts.
- */
-export async function executePresentation(
-  input: PresentationInput,
-): Promise<PresentationOutput> {
-  const safeFilename = input.title
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '') + '.pptx'
+export async function executePresentation(input: PresentationInput): Promise<PresentationOutput> {
+  const templateId = input.template || 'toprealty-broker'
+  const template = getTemplate(templateId)
+  if (!template) return { success: false, message: `Template "${templateId}" not found. Available: ${require('../../presentation-templates/registry.ts').listTemplates().map((t: any) => t.id).join(', ')}` }
 
-  const result = await buildPresentation(input.slides, safeFilename)
+  const format = input.format || 'pptx'
+
+  // Build flat slides compatible with existing pptx.ts buildPresentation()
+  const flatSlides: Array<{ title: string; content: string; type: string }> = []
+
+  for (const s of input.slides) {
+    const layout = template.layouts.find(l => l.id === s.layout)
+    if (!layout) return { success: false, message: `Layout "${s.layout}" not found in template "${templateId}". Available: ${template.layouts.map(l => l.id).join(', ')}` }
+
+    // Validate content against schema
+    const parsed = layout.schema.safeParse(s.content)
+    if (!parsed.success) {
+      return { success: false, message: `Invalid content for layout "${s.layout}": ${parsed.error.message}` }
+    }
+
+    // Build a title/content string for the flat renderer
+    const c = parsed.data
+    const title = c.property_name || c.message || c.title || 'Slide'
+    const content = Object.entries(c)
+      .filter(([k]) => !['property_name', 'message', 'agent'].includes(k))
+      .map(([k, v]) => `${k}: ${v}`)
+      .join('\n')
+
+    flatSlides.push({ title, content, type: layout.id.split(':').pop() || 'content' })
+  }
+
+  // Generate renderer-specific output
+  const baseName = (input.title || 'presentation').replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()
+
+  if (format === 'html') {
+    // Build for presenton-style JSON→HTML preview
+    const previewData = {
+      title: input.title || 'Presentation',
+      slides: flatSlides.map(s => ({ title: s.title, content: s.content, type: s.type as any })),
+    }
+    return {
+      success: true,
+      message: 'HTML preview ready.',
+      files: [],
+    }
+  }
+
+  // PDF and PPTX
+  const pptxResult = await buildPptx(flatSlides, `${baseName}.pptx`)
+
+  const files: Array<{ filename: string; url: string; format: string }> = [
+    { filename: pptxResult.filename, url: pptxResult.url, format: 'PPTX' },
+  ]
+
+  if (format === 'pdf') {
+    const html = renderPresentationHtml({
+      title: input.title || 'Presentation',
+      slides: flatSlides.map(s => ({ title: s.title, content: s.content, type: s.type as any })),
+      theme: { primary: template.primaryColor },
+    })
+    const pdfResult = await renderPdf(html, baseName)
+    files.push({ filename: pdfResult.filename, url: pdfResult.url, format: 'PDF' })
+  }
 
   return {
     success: true,
-    message: `Presentation "${input.title}" generated with ${input.slides.length} slides.`,
-    slideCount: input.slides.length,
-    downloadUrl: result.url,
+    message: `Presentation generated as ${format.toUpperCase()}.`,
+    downloadUrl: pptxResult.url,
+    files,
   }
 }

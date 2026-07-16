@@ -8,6 +8,8 @@ import { models } from './services/ai/client.ts';
 import { SYSTEM_PROMPT } from './services/ai/prompts.ts';
 import { searchWeb } from './utils/tinyfish.ts';
 import { renderPresentationHtml } from './services/documents/presentation-json.ts';
+import { listTemplates, getTemplate } from './presentation-templates/registry.ts';
+import './presentation-templates/broker.ts'; // Register templates
 
 // ─── Helpers ────────────────────────────────────────────────────────
 function escapeHtml(str) {
@@ -50,6 +52,27 @@ app.post('/api/preview/presentation', (req, res) => {
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
+});
+
+// Template discovery — lists available presentation templates
+app.get('/api/templates', (_, res) => {
+  res.json({ templates: listTemplates() });
+});
+
+// Template detail — shows all layouts for a template
+app.get('/api/templates/:id', (req, res) => {
+  const template = getTemplate(req.params.id);
+  if (!template) return res.status(404).json({ error: 'Template not found' });
+  res.json({
+    id: template.id,
+    name: template.name,
+    primaryColor: template.primaryColor,
+    layouts: template.layouts.map(l => ({
+      id: l.id,
+      name: l.name,
+      description: l.description,
+    })),
+  });
 });
 
 // AI Chat endpoint — streaming with multi-step tool calling
@@ -167,14 +190,14 @@ app.post('/api/chat', async (req, res) => {
         }),
 
         generate_presentation: tool({
-          description: 'Generate a professional PowerPoint presentation with TopRealty branding (navy theme, slide numbers, branded master). Supports 6 slide types.',
+          description: 'Generate a professional real estate presentation using the broker template. Available layouts: broker:title (opening), broker:property-overview (specs+highlights table), broker:comparison (side-by-side), broker:investment (metrics+ROI), broker:end (closing).',
           parameters: z.object({
-            propertyName: z.string(),
+            template: z.string().default('toprealty-broker').describe('Template ID. Currently available: toprealty-broker'),
+            title: z.string().optional().describe('Presentation title'),
+            format: z.enum(['pptx', 'pdf', 'html']).default('pptx'),
             slides: z.array(z.object({
-              title: z.string(), content: z.string(),
-              type: z.enum(['title', 'content', 'two_column', 'section', 'bullets', 'end', 'table']).default('content').describe(
-                'title=opening slide, content=heading+body, two_column=comparison, section=divider, bullets=bulleted list, end=closing, table=pipe-delimited data table'
-              ),
+              layout: z.string().describe('Layout ID. Choose from: broker:title, broker:property-overview, broker:comparison, broker:investment, broker:end'),
+              content: z.record(z.any()).describe('Content matching the layout schema. Each layout needs different fields — see tool description for each.'),
             })),
             includeFinancials: z.boolean().default(false),
           }),
@@ -182,7 +205,9 @@ app.post('/api/chat', async (req, res) => {
             try {
               const { executePresentation } = await import('./services/ai/tools/presentation.ts');
               return await executePresentation({
-                title: input.propertyName,
+                template: input.template || 'toprealty-broker',
+                title: input.title || input.propertyName,
+                format: input.format || 'pptx',
                 slides: input.slides,
               });
             } catch (err) {
