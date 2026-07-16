@@ -298,56 +298,10 @@ function buildComparison() {
           spacing: { after: 200 },
         }),
 
-        // Carbone loop wrapper — these are literal text paragraphs that Carbone interprets
-        // For array loops, Carbone needs the tags on their own in the XML.
-        // We embed them as separate paragraphs that Carbone will process.
-        new Paragraph({
-          children: [new TextRun({ text: '{#d.properties}', font: 'Calibri', size: 1, color: WHITE })],
-        }),
-
-        // Property rows (Carbone will duplicate this block per item)
-        new Paragraph({
-          children: [
-            new TextRun({ text: '─── ', font: 'Calibri', size: 22, color: NAVY, bold: true }),
-            new TextRun({ text: '{.name}', font: 'Calibri', size: 28, color: NAVY, bold: true }),
-            new TextRun({ text: ' ───', font: 'Calibri', size: 22, color: NAVY, bold: true }),
-          ],
-          spacing: { before: 200, after: 80 },
-        }),
-        new Paragraph({
-          children: [
-            new TextRun({ text: 'Price: ', font: 'Calibri', size: 22, color: NAVY, bold: true }),
-            new TextRun({ text: '{.price}', font: 'Calibri', size: 22, color: MAROON, bold: true }),
-          ],
-          spacing: { after: 60 },
-        }),
-        new Paragraph({
-          children: [
-            new TextRun({ text: 'Specifications: ', font: 'Calibri', size: 22, color: NAVY, bold: true }),
-            new TextRun({ text: '{.specs}', font: 'Calibri', size: 22, color: DARK_TEXT }),
-          ],
-          spacing: { after: 60 },
-        }),
-        new Paragraph({
-          children: [
-            new TextRun({ text: '✅ Pros: ', font: 'Calibri', size: 22, color: '228B22', bold: true }),
-            new TextRun({ text: '{.pros}', font: 'Calibri', size: 22, color: DARK_TEXT }),
-          ],
-          spacing: { after: 60 },
-        }),
-        new Paragraph({
-          children: [
-            new TextRun({ text: '❌ Cons: ', font: 'Calibri', size: 22, color: MAROON, bold: true }),
-            new TextRun({ text: '{.cons}', font: 'Calibri', size: 22, color: DARK_TEXT }),
-          ],
-          spacing: { after: 60 },
-        }),
+        // Carbone data block — uses a single {d.details} field
+        // (same pattern as brochure — AI formats the comparison as text)
+        bodyLine('{d.details}'),
         divider(),
-
-        // End Carbone loop
-        new Paragraph({
-          children: [new TextRun({ text: '{/d.properties}', font: 'Calibri', size: 1, color: WHITE })],
-        }),
 
         // Disclaimer
         new Paragraph({

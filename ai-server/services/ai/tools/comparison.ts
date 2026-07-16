@@ -1,8 +1,10 @@
 import { renderDocument } from '../../documents/carbone'
 
 export interface ComparisonInput {
-  /** Comparison data: multiple properties with side-by-side features */
-  comparisonData: Record<string, unknown>
+  /** AI-formatted comparison text (markdown-style plain text with line breaks) */
+  details: string
+  /** Properties for metadata (not used in v3 single-field template) */
+  properties?: Array<Record<string, unknown>>
 }
 
 export interface ComparisonOutput {
@@ -14,11 +16,15 @@ export interface ComparisonOutput {
 
 /**
  * Generate a property comparison document as DOCX.
- * Renders a Carbone DOCX template with multi-property comparison data.
+ * Uses a single {d.details} Carbone field — same pattern as brochure.
  * (PDF conversion requires LibreOffice — DOCX is ready instantly.)
  */
 export async function executeComparison(input: ComparisonInput): Promise<ComparisonOutput> {
-  const result = await renderDocument('comparison.docx', input.comparisonData, {
+  const result = await renderDocument('comparison.docx', {
+    details: input.details,
+    property_name: 'Property Comparison',
+    generated_date: new Date().toLocaleDateString('en-PH'),
+  }, {
     convertTo: 'docx',
   })
 
