@@ -39,7 +39,7 @@ const LIGHT_GRAY = 'F5F5F5'
 const BODY_TEXT_COLOR = '2D3748'
 
 // ─── Types ───────────────────────────────────────────────────────────
-export type SlideType = 'title' | 'content' | 'two_column' | 'section' | 'bullets' | 'end'
+export type SlideType = 'title' | 'content' | 'two_column' | 'section' | 'bullets' | 'end' | 'table'
 
 export interface SlideContent {
   title: string
@@ -193,6 +193,36 @@ function addEndSlide(pres: PptxGenJS, title: string): void {
   })
 }
 
+/** Table slide: navy heading + data table parsed from pipe-delimited lines */
+function addTableSlide(pres: PptxGenJS, heading: string, body: string): void {
+  const slide = pres.addSlide()
+
+  slide.addShape(pres.ShapeType.rect, {
+    x: 0, y: 0, w: '100%', h: 0.9,
+    fill: { color: NAVY },
+  })
+
+  slide.addText(heading, {
+    x: 0.6, y: 0, w: '90%', h: 0.9,
+    fontSize: 28, bold: true, color: WHITE, valign: 'middle',
+  })
+
+  const rows = body.split('\n').filter(Boolean).map(line =>
+    line.split('|').map(c => c.trim()).filter(Boolean)
+  )
+
+  if (rows.length > 0) {
+    slide.addTable(rows, {
+      x: 0.5, y: 1.2, w: 9,
+      border: { type: 'solid', color: 'D1D5DB' },
+      colW: rows[0].map(() => 9 / rows[0].length),
+      fontFace: 'Calibri', fontSize: 10,
+      color: BODY_TEXT_COLOR,
+      autoPage: true,
+    })
+  }
+}
+
 // ─── Public API ──────────────────────────────────────────────────────
 
 function ensureOutputDir(): void {
@@ -251,6 +281,7 @@ export async function buildPresentation(
       case 'content': addContentSlide(pres, t, c); break
       case 'section': addSectionSlide(pres, t, c || undefined); break
       case 'bullets': addBulletsSlide(pres, t, c); break
+      case 'table':   addTableSlide(pres, t, c); break
       case 'end':     addEndSlide(pres, t); break
       case 'two_column': {
         const left = slide.left ?? { title: '', content: '' }
