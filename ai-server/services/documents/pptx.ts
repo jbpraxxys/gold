@@ -7,6 +7,23 @@ const PptxGenJS: typeof pptxgenjs = (pptxgenjs as any).default || pptxgenjs
 
 const OUTPUT_DIR = path.resolve(process.cwd(), 'public', 'generated')
 
+// ─── Helpers ─────────────────────────────────────────────────────────
+/** Strip HTML tags and convert to plain text with line breaks */
+function stripHtml(html: string): string {
+  return html
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/p>/gi, '\n')
+    .replace(/<\/li>/gi, '\n')
+    .replace(/<\/h[1-6]>/gi, '\n')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
 // ─── Brand colors ────────────────────────────────────────────────────────
 const NAVY = '1A4175'
 const WHITE = 'FFFFFF'
@@ -225,27 +242,29 @@ export async function buildPresentation(
   pres.layout = 'LAYOUT_WIDE'
 
   for (const slide of slides) {
+    const t = stripHtml(slide.title || '');
+    const c = stripHtml(slide.content || '');
+
     switch (slide.type) {
       case 'title': {
-        const subtitle = slide.content || undefined
-        addTitleSlide(pres, slide.title, subtitle)
-        break
+        addTitleSlide(pres, t, c || undefined);
+        break;
       }
       case 'content': {
-        addContentSlide(pres, slide.title, slide.content)
-        break
+        addContentSlide(pres, t, c);
+        break;
       }
       case 'two_column': {
-        const left = slide.left ?? { title: '', content: '' }
-        const right = slide.right ?? { title: '', content: '' }
+        const left = slide.left ?? { title: '', content: '' };
+        const right = slide.right ?? { title: '', content: '' };
         addTwoColumnSlide(
           pres,
-          left.title || slide.title,
-          left.content,
-          right.title || '',
-          right.content,
-        )
-        break
+          stripHtml(left.title || slide.title),
+          stripHtml(left.content),
+          stripHtml(right.title || ''),
+          stripHtml(right.content),
+        );
+        break;
       }
     }
   }
