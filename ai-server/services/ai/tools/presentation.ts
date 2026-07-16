@@ -6,6 +6,7 @@ import path from 'node:path'
 
 // Load templates (side-effect: registers them)
 import '../../../presentation-templates/broker.ts'
+import '../../../presentation-templates/luxury.ts'
 
 const OUTPUT_DIR = path.resolve(process.cwd(), 'public', 'generated')
 
