@@ -13,12 +13,12 @@
       AI
     </div>
 
-    <div class="bubble-ai max-w-[76%] px-5 py-4 text-sm leading-relaxed" :class="{ 'streaming-cursor': isStreaming && hasContent }">
-      <!-- Streaming content: show live as it arrives -->
-      <div class="bubble-ai-content" v-html="renderedContent"></div>
-      
-      <!-- Loading indicator: only when no content yet -->
-      <ThinkingDots v-if="isStreaming && !hasContent" />
+    <div class="bubble-ai max-w-[76%] px-5 py-4 text-sm leading-relaxed">
+      <!-- Streaming content: show live as it arrives + loader inline -->
+      <div class="bubble-ai-content" :class="{ 'flex items-end gap-1': isStreaming }">
+        <span v-html="renderedContent"></span>
+        <ThinkingDots v-if="isStreaming" />
+      </div>
 
       <!-- Tool invocation results: document cards -->
       <div v-if="documentResults.length" class="mt-2.5 flex flex-col gap-2.5">
@@ -110,9 +110,6 @@ const renderedContent = computed(() => {
   // Convert markdown to HTML
   return markdownToHtml(raw);
 });
-
-// True when the AI has started generating text content
-const hasContent = computed(() => renderedContent.value.length > 0);
 
 const documentResults = computed<DocResult[]>(() => {
   if (!props.message.toolInvocations) return [];

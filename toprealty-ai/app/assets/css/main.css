@@ -198,14 +198,4 @@ body {
   font-style: italic;
 }
 
-/* Live typing cursor (when streaming) */
-@keyframes blink {
-  0%, 50% { opacity: 1; }
-  51%, 100% { opacity: 0; }
-}
-.streaming-cursor::after {
-  content: '▌';
-  animation: blink 1s infinite;
-  color: var(--navy);
-  font-weight: 400;
-}
+
