@@ -146,9 +146,9 @@ const documentResults = computed<DocResult[]>(() => {
       const fmtMap: Record<string, string> = {
         generate_spreadsheet: 'XLSX',
         generate_presentation: 'PPTX',
-        generate_brochure: 'DOCX',
-        generate_cma: 'DOCX',
-        generate_comparison: 'DOCX',
+        generate_brochure: 'PDF',
+        generate_cma: 'PDF',
+        generate_comparison: 'PDF',
       };
       const fmt = fmtMap[toolName] || 'FILE';
       const urlPath = result.downloadUrl;

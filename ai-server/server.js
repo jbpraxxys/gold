@@ -72,12 +72,9 @@ app.post('/api/chat', async (req, res) => {
               const { executeBrochure } = await import('./services/ai/tools/brochure.ts');
               const fmt = input.format === 'both' ? 'pdf' : input.format;
               return await executeBrochure({
-                propertyData: {
-                  property_name: input.propertyName,
-                  details: input.propertyDetails,
-                  tone: input.tone,
-                  generated_date: new Date().toLocaleDateString('en-PH'),
-                },
+                propertyName: input.propertyName,
+                details: input.propertyDetails,
+                tone: input.tone,
                 format: fmt,
               });
             } catch (err) {
@@ -98,13 +95,10 @@ app.post('/api/chat', async (req, res) => {
             try {
               const { executeCma } = await import('./services/ai/tools/cma.ts');
               return await executeCma({
-                cmaData: {
-                  subject_name: input.subjectProperty,
-                  subject_price: input.subjectPrice,
-                  comparables: input.comparableProperties,
-                  market_trends: input.marketTrends,
-                  generated_date: new Date().toLocaleDateString('en-PH'),
-                },
+                subjectName: input.subjectProperty,
+                subjectPrice: input.subjectPrice,
+                comparables: input.comparableProperties,
+                marketTrends: input.marketTrends,
               });
             } catch (err) {
               return { success: false, message: `CMA generation failed: ${err.message}` };
@@ -123,7 +117,6 @@ app.post('/api/chat', async (req, res) => {
           execute: async (input) => {
             try {
               const { executeComparison } = await import('./services/ai/tools/comparison.ts');
-              // Format property array as readable text block (same pattern as brochure details)
               const details = input.properties.map((p, i) => {
                 return `\n━━━ PROPERTY ${i + 1}: ${p.name} ━━━\n` +
                        `💰 Price: ${p.price}\n` +
@@ -131,7 +124,7 @@ app.post('/api/chat', async (req, res) => {
                        `✅ Pros: ${p.pros}\n` +
                        `❌ Cons: ${p.cons}\n`;
               }).join('');
-              return await executeComparison({ details });
+              return await executeComparison({ details, propertyName: 'Property Comparison' });
             } catch (err) {
               return { success: false, message: `Comparison generation failed: ${err.message}` };
             }

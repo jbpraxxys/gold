@@ -1,37 +1,37 @@
-import { renderDocument } from '../../documents/carbone'
+import { comparisonHtml } from '../../documents/html.ts';
+import { renderPdf } from '../../documents/pdf.ts';
 
 export interface ComparisonInput {
-  /** AI-formatted comparison text (markdown-style plain text with line breaks) */
-  details: string
-  /** Properties for metadata (not used in v3 single-field template) */
-  properties?: Array<Record<string, unknown>>
+  details?: string;
+  properties?: Array<Record<string, unknown>>;
+  propertyName?: string;
 }
 
 export interface ComparisonOutput {
-  success: boolean
-  message: string
-  summary: string
-  downloadUrl: string
+  success: boolean;
+  message: string;
+  summary: string;
+  downloadUrl: string;
 }
 
 /**
- * Generate a property comparison document as DOCX.
- * Uses a single {d.details} Carbone field — same pattern as brochure.
- * (PDF conversion requires LibreOffice — DOCX is ready instantly.)
+ * Generate a property comparison as PDF via HTML→Playwright pipeline.
  */
 export async function executeComparison(input: ComparisonInput): Promise<ComparisonOutput> {
-  const result = await renderDocument('comparison.docx', {
-    details: input.details,
-    property_name: 'Property Comparison',
-    generated_date: new Date().toLocaleDateString('en-PH'),
-  }, {
-    convertTo: 'docx',
-  })
+  const propertyName = (input.propertyName || 'Property Comparison') as string;
+  const details = (input.details || '') as string;
+
+  const html = comparisonHtml({ property_name: propertyName, details });
+  const result = await renderPdf(html, sanitize(propertyName) + '-comparison');
 
   return {
     success: true,
-    message: 'Property comparison generated successfully as DOCX.',
-    summary: 'A side-by-side property comparison report has been generated. Download the DOCX file for the complete analysis.',
+    message: `Property comparison generated as PDF.`,
+    summary: 'A side-by-side property comparison has been generated as PDF.',
     downloadUrl: result.url,
-  }
+  };
+}
+
+function sanitize(name: string): string {
+  return name.replace(/[^a-zA-Z0-9\s-]/g, '').replace(/\s+/g, '-').toLowerCase() || 'comparison';
 }

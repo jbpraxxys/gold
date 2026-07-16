@@ -1,30 +1,47 @@
-import { renderDocument } from '../../documents/carbone'
+import { cmaHtml } from '../../documents/html.ts';
+import { renderPdf } from '../../documents/pdf.ts';
 
 export interface CmaInput {
-  /** CMA data: comparables, market trends, valuation, adjustments */
-  cmaData: Record<string, unknown>
+  cmaData?: Record<string, unknown>;
+  subjectName?: string;
+  subjectPrice?: string;
+  comparables?: string;
+  marketTrends?: string;
 }
 
 export interface CmaOutput {
-  success: boolean
-  message: string
-  summary: string
-  downloadUrl: string
+  success: boolean;
+  message: string;
+  summary: string;
+  downloadUrl: string;
 }
 
 /**
- * Generate a Comparative Market Analysis (CMA) report as DOCX.
- * Uses a Carbone DOCX template. (PDF conversion requires LibreOffice.)
+ * Generate a CMA report as PDF via HTML→Playwright pipeline.
  */
 export async function executeCma(input: CmaInput): Promise<CmaOutput> {
-  const result = await renderDocument('cma-report.docx', input.cmaData, {
-    convertTo: 'docx',
-  })
+  const subjectName = (input.subjectName || (input.cmaData as any)?.subject_name || 'CMA Report') as string;
+  const subjectPrice = (input.subjectPrice || (input.cmaData as any)?.subject_price || '') as string;
+  const comparables = (input.comparables || (input.cmaData as any)?.comparables || '') as string;
+  const marketTrends = (input.marketTrends || (input.cmaData as any)?.market_trends || '') as string;
+
+  const html = cmaHtml({
+    subject_name: subjectName,
+    subject_price: subjectPrice,
+    comparables,
+    market_trends: marketTrends,
+  });
+
+  const result = await renderPdf(html, sanitize(subjectName) + '-cma');
 
   return {
     success: true,
-    message: 'CMA report generated successfully as DOCX.',
-    summary: 'A comprehensive Comparative Market Analysis (CMA) report has been generated. Download the DOCX for detailed charts and data.',
+    message: `CMA report "${subjectName}" generated as PDF.`,
+    summary: 'A comprehensive Comparative Market Analysis report has been generated as PDF.',
     downloadUrl: result.url,
-  }
+  };
+}
+
+function sanitize(name: string): string {
+  return name.replace(/[^a-zA-Z0-9\s-]/g, '').replace(/\s+/g, '-').toLowerCase() || 'cma-report';
 }
