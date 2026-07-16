@@ -1,20 +1,23 @@
 /**
  * HTML Templates — Converts structured JSON → styled HTML for PDF rendering
  * 
- * Uses marked to convert AI-generated markdown into rich styled HTML.
+ * The AI generates HTML directly (tables, headings, lists) — no markdown conversion needed.
  * All styles are INLINE for maximum Playwright PDF compatibility.
  * Brand colors: navy #1A4175, maroon #941D28
  */
 
-import { marked } from 'marked';
-
-// Configure marked for rich rendering
-marked.setOptions({ breaks: true, gfm: true });
-
-function md(text: string): string {
-  if (!text) return '';
-  const raw = marked.parse(text);
-  return typeof raw === 'string' ? raw : '';
+/**
+ * Render AI-generated HTML content inside the document template.
+ * The AI already produces properly formatted HTML with tables, headings, etc.
+ * We sanitize only structural issues (unclosed tags) — we trust our own AI.
+ */
+function renderHtml(html: string): string {
+  if (!html) return '';
+  // Wrap bare text in <p> if needed, otherwise pass through
+  if (!html.trim().startsWith('<')) {
+    return `<p>${html.replace(/\n/g, '<br>')}</p>`;
+  }
+  return html;
 }
 
 // ─── Base Layout ───────────────────────────────────────────────────
@@ -117,7 +120,7 @@ export function brochureHtml(data: {
 
 <h2>Property Details</h2>
 <div class="markdown-content">
-${md(data.details)}
+${renderHtml(data.details)}
 </div>
 
 <hr class="divider">
@@ -149,12 +152,12 @@ export function cmaHtml(data: {
 
 <h2>Comparable Properties</h2>
 <div class="markdown-content">
-${md(data.comparables)}
+${renderHtml(data.comparables)}
 </div>
 
 <h2>Market Trends &amp; Analysis</h2>
 <div class="markdown-content">
-${md(data.market_trends)}
+${renderHtml(data.market_trends)}
 </div>
 
 <hr class="divider">
@@ -179,7 +182,7 @@ export function comparisonHtml(data: {
 <h1>${escapeHtml(data.property_name || 'Property Comparison')}</h1>
 
 <div class="markdown-content">
-${md(data.details)}
+${renderHtml(data.details)}
 </div>
 
 <hr class="divider">

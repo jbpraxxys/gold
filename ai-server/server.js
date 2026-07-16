@@ -64,14 +64,13 @@ app.post('/api/chat', async (req, res) => {
           parameters: z.object({
             propertyName: z.string(),
             propertyDetails: z.string().describe(
-              'Full property description in markdown format. Use ## headings for sections, **bold** for key specs, tables for structured data, --- for dividers. Write as a professional printed brochure — include an opening introduction, location highlights, specs table, amenities section, investment highlights, and call-to-action. Example format:\n\n' +
-              '## Overview\n[1-2 paragraph introduction about the property]\n\n' +
-              '## Location & Accessibility\n[Neighborhood description, landmarks, transport]\n\n' +
-              '## Unit Specifications\n\n' +
-              '| Feature | Detail |\n|---------|--------|\n| Price | ₱X,XXX,XXX |\n| Floor Area | XX sqm |\n...\n\n' +
-              '## Amenities\n- ✓ Item one\n- ✓ Item two\n\n' +
-              '## Investment Highlights\n- Strong appreciation potential\n- High rental yield\n\n' +
-              '## Contact\nTopRealty AI | www.toprealty.ai'
+              'Full property description as HTML. Use <h2> headings, <table> for specs, <ul>/<li> for features. Write as a professional printed brochure. Example:\n\n' +
+              '<h2>Overview</h2>\n<p>Executive summary paragraph...</p>\n\n' +
+              '<h2>Location</h2>\n<p>Neighborhood description...</p>\n\n' +
+              '<h2>Specifications</h2>\n<table><tr><th>Feature</th><th>Detail</th></tr><tr><td>Price</td><td>₱X,XXX,XXX</td></tr><tr><td>Floor Area</td><td>XX sqm</td></tr><tr><td>Bedrooms</td><td>X</td></tr></table>\n\n' +
+              '<h2>Amenities</h2>\n<ul><li>✓ Swimming pool</li><li>✓ Gym</li><li>✓ 24/7 security</li></ul>\n\n' +
+              '<h2>Investment Highlights</h2>\n<ul><li><strong>Appreciation:</strong> X% annually</li><li><strong>Rental Yield:</strong> X% gross</li></ul>\n\n' +
+              '<p><em>Contact: TopRealty AI | www.toprealty.ai</em></p>'
             ),
             format: z.enum(['docx', 'pdf', 'both']).default('pdf'),
             tone: z.enum(['luxury', 'family', 'investment', 'standard']).default('standard'),
@@ -98,10 +97,10 @@ app.post('/api/chat', async (req, res) => {
             subjectProperty: z.string(),
             subjectPrice: z.string(),
             comparableProperties: z.string().describe(
-              'Comparable property analysis in markdown. Use a table with columns: Property Name | Price | Size (sqm) | Price/sqm | Location | Key Features. Include at least 4-6 comparable properties. Below the table, add a 1-paragraph comparative analysis summarizing pricing trends and how the subject property compares.'
+              'Comparable properties as HTML. Use a <table> with columns: Property | Price | Size | Price/sqm | Location | Features. Minimum 4-6 properties. Below table, add <p> analysis.</p>.'
             ),
             marketTrends: z.string().describe(
-              'Market analysis in markdown. Use ## headings for sections. Include: price trends (past 12 months), supply & demand analysis, neighborhood developments, and a recommended price range. Use **bold** for key figures and --- for section breaks.'
+              'Market analysis as HTML. Use <h2>Price Trends</h2>, <h2>Supply & Demand</h2>, <h2>Neighborhood Developments</h2>, <h2>Recommended Range</h2> sections. Use <strong> for key numbers.'
             ),
           }),
           execute: async (input) => {
@@ -126,8 +125,7 @@ app.post('/api/chat', async (req, res) => {
               name: z.string().describe('Property name with developer (e.g., "Uptown Parksuites by Megaworld")'),
               price: z.string().describe('Price range or specific price (e.g., "₱4M – ₱85M" or "Starting at ₱7.5M")'),
               specs: z.string().describe(
-                'Key specifications in markdown table format. Include: Location, Developer, Unit Types, Floor Areas, Year Completed, Amenities. Use | table | format | for structured data. Example:\n' +
-                '| Feature | Detail |\n|---|---|\n| Developer | Megaworld |\n| Location | Uptown Bonifacio |\n| Unit Sizes | 33-453 sqm |\n| Year | 2017-2020 |'
+                'KEY SPECIFICATIONS as an HTML <table>. Required columns: Feature | Detail. Include rows for: Developer, Location, Unit Types, Floor Areas, Year Completed, Price per sqm, Parking, Main Amenities. This table will be rendered with navy header and professional styling in the PDF.'
               ),
               pros: z.string().describe('Advantages as a markdown list. Use ✓ for each point. Include location benefits, developer reputation, investment potential, amenities. Format: "✓ [point]" each on new line.'),
               cons: z.string().describe('Disadvantages as a markdown list. Use ✗ for each point. Be honest and balanced. Format: "✗ [point]" each on new line.'),
