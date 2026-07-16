@@ -103,6 +103,12 @@ const renderedContent = computed(() => {
       .join('\n');
   }
 
+  // Fallback: tool calls happened but no text was produced (maxSteps exhausted)
+  const hasToolCalls = props.message.toolInvocations && props.message.toolInvocations.length > 0;
+  if (!raw && hasToolCalls && !props.isStreaming) {
+    raw = '*I searched for the requested data but ran out of steps before I could compile a response. Please try asking again or be more specific.*';
+  }
+
   // Debug: log if we have parts but no text extracted
   if (props.message.parts && !raw && props.message.role === 'assistant') {
     console.warn('[ChatBubble] Parts found but no text extracted:', 
